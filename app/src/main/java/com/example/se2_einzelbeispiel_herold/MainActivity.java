@@ -12,8 +12,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,41 +59,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendMessageToServer(String message) {
-        /*
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                serverResponseTextView.setText(message);
-            }
-        });
-        */
-
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Socket socket = null;
                 try {
-                    // establish connection to server
-                    Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+                    // Establish connection to server
+                    socket = new Socket(SERVER_IP, SERVER_PORT);
                     displayServerResponse("Successfully connected :)");
 
-                    // close connection
+                    // Reader/writer
+                    OutputStream out = socket.getOutputStream();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    // Send message
+                    out.write(message.getBytes("UTF-8"));
+                    out.flush();
+
+                    // Wait for response
+                    socket.setSoTimeout(3000);
+                    // Read response
+                    String serverResponse = in.readLine();
+
+                    // Display response
+                    if (serverResponse != null) {
+                        displayServerResponse(serverResponse);
+                    } else {
+                        displayServerResponse("No Response :(");
+                    }
+
+                    // Close connection and streams
+                    in.close();
+                    out.close();
                     socket.close();
+
+                } catch (SocketTimeoutException e) {
+                    // Handle timeout exception
+                    displayServerResponse("Timeout occurred while waiting for response :(");
                 } catch (IOException e) {
-                    // display error message
-                    displayServerResponse("Failed to connect to the server :(");
-                    throw new RuntimeException(e);
+                    // Display error message
+                    displayServerResponse("Something went wrong :(");
+                    e.printStackTrace();
+                } finally {
+                    // Close the socket
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }).start();
-
     }
 
     private void displayServerResponse(String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                serverResponseTextView.setText(message);
-            }
-        });
+        runOnUiThread(() -> serverResponseTextView.setText(message));
     }
 }
