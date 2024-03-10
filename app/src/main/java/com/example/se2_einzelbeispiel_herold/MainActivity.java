@@ -38,7 +38,18 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serverResponseTextView.setText("Test");
+                String matrNr = matrNrEditText.getText().toString();
+
+                sendMessageToServer(matrNr);
+            }
+        });
+    }
+
+    private void sendMessageToServer(String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                serverResponseTextView.setText(message);
             }
         });
     }
