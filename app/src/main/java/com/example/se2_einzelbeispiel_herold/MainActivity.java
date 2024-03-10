@@ -1,6 +1,7 @@
 package com.example.se2_einzelbeispiel_herold;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     // Establish connection to server
                     socket = new Socket(SERVER_IP, SERVER_PORT);
+                    Log.i("HELP", "CONNECTED");
                     displayServerResponse("Successfully connected :)");
 
                     // Reader/writer
