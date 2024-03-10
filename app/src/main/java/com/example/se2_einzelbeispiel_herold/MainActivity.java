@@ -14,9 +14,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessageToServer(String message) {
         new Thread(() -> {
             Socket socket = null;
+            BufferedWriter out = null;
+            BufferedReader in = null;
             try {
                 // Establish connection to server
                 socket = new Socket(SERVER_IP, SERVER_PORT);
@@ -76,29 +80,38 @@ public class MainActivity extends AppCompatActivity {
                 displayServerResponse("Successfully connected :)");
 
                 // Reader/writer
-                OutputStream out = socket.getOutputStream();
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                Log.i("HELP", "SET UP READER/WRITER");
 
                 // Send message
-                out.write(message.getBytes("UTF-8"));
+                if(message == null || message.isEmpty()) {
+                    displayServerResponse("Bitte MatrNr eingeben ;)");
+                    return;
+                }
+                out.write(message);
                 out.flush();
+                Log.i("HELP", "MESSAGE SENT");
 
                 // Wait for response
-                socket.setSoTimeout(3000);
+                socket.setSoTimeout(30000);
                 // Read response
                 String serverResponse = in.readLine();
 
                 // Display response
                 if (serverResponse != null) {
                     displayServerResponse(serverResponse);
+                    Log.i("HELP", "MESSAGE RECEIVED");
                 } else {
                     displayServerResponse("No Response :(");
+                    Log.i("HELP", "MESSAGE TIMEOUT");
                 }
 
                 // Close connection and streams
                 in.close();
                 out.close();
                 socket.close();
+                Log.i("HELP", "NORMAL CLOSE");
 
             } catch (SocketTimeoutException e) {
                 // Handle timeout exception
@@ -108,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                 displayServerResponse("Something went wrong :(");
                 e.printStackTrace();
             } finally {
-                // Close the socket
                 if (socket != null) {
                     try {
                         socket.close();
@@ -116,6 +128,23 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Log.i("HELP", "FINALLY CLOSE");
             }
         }).start();
     }
@@ -127,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     private void calculateResult(String input) {
         new Thread(() -> {
             if(input == null || input.isEmpty()) {
-                displayResult("Bitte Zahl eingeben ;)");
+                displayResult("Bitte MatrNr eingeben ;)");
                 return;
             }
 
