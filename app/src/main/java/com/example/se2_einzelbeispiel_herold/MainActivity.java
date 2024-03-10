@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -123,7 +125,57 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void calculateResult(String input) {
-        displayResult(input);
+        new Thread(() -> {
+            if(input == null || input.isEmpty()) {
+                displayResult("Bitte Zahl eingeben ;)");
+                return;
+            }
+
+            // convert input string to arraylist
+            List<Integer> digits = new ArrayList<>();
+            for (int i = 0; i < input.length(); i++) {
+                digits.add(Character.getNumericValue(input.charAt(i)));
+            }
+
+            // if there's only one digit, stop here and return
+            if(digits.size() == 1) {
+                displayResult("Nur eine Ziffer :(");
+                return;
+            }
+
+            String resultText = "";
+
+            // compare each digit combination
+            for (int i = 0; i < digits.size() - 1; i++) {
+                for (int j = i + 1; j < digits.size(); j++) {
+                    int num1 = digits.get(i);
+                    int num2 = digits.get(j);
+
+                    // calculate gcd
+                    int gcd = calculateGCD(num1, num2);
+
+                    if (gcd >= 2) {
+                        resultText += "(" + i + ", " + j + ") ";
+                    }
+                }
+            }
+
+            if (resultText.isEmpty()) {
+                displayResult("No pairs with gcd > 1 :(");
+            } else {
+                displayResult(resultText);
+            }
+        }).start();
+    }
+
+    // https://www.javatpoint.com/java-program-to-find-gcd-of-two-numbers
+    private int calculateGCD(int a, int b) {
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
     }
 
     private void displayResult(String message) {
