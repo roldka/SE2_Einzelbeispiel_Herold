@@ -52,77 +52,66 @@ public class MainActivity extends AppCompatActivity {
         calculateButton = findViewById(R.id.calculateButton);
 
         // set sendButton behaviour
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String matrNr = matrNrEditText.getText().toString();
-
-                sendMessageToServer(matrNr);
-            }
+        sendButton.setOnClickListener(v -> {
+            String matrNr = matrNrEditText.getText().toString();
+            sendMessageToServer(matrNr);
         });
 
         // set calculateButton behaviour
-        calculateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String matrNr = matrNrEditText.getText().toString();
-
-                calculateResult(matrNr);
-            }
+        calculateButton.setOnClickListener(v -> {
+            String matrNr = matrNrEditText.getText().toString();
+            calculateResult(matrNr);
         });
     }
 
     private void sendMessageToServer(String message) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Socket socket = null;
-                try {
-                    // Establish connection to server
-                    socket = new Socket(SERVER_IP, SERVER_PORT);
-                    Log.i("HELP", "CONNECTED");
-                    displayServerResponse("Successfully connected :)");
+        new Thread(() -> {
+            Socket socket = null;
+            try {
+                // Establish connection to server
+                socket = new Socket(SERVER_IP, SERVER_PORT);
+                Log.i("HELP", "CONNECTED");
+                displayServerResponse("Successfully connected :)");
 
-                    // Reader/writer
-                    OutputStream out = socket.getOutputStream();
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Reader/writer
+                OutputStream out = socket.getOutputStream();
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                    // Send message
-                    out.write(message.getBytes("UTF-8"));
-                    out.flush();
+                // Send message
+                out.write(message.getBytes("UTF-8"));
+                out.flush();
 
-                    // Wait for response
-                    socket.setSoTimeout(3000);
-                    // Read response
-                    String serverResponse = in.readLine();
+                // Wait for response
+                socket.setSoTimeout(3000);
+                // Read response
+                String serverResponse = in.readLine();
 
-                    // Display response
-                    if (serverResponse != null) {
-                        displayServerResponse(serverResponse);
-                    } else {
-                        displayServerResponse("No Response :(");
-                    }
+                // Display response
+                if (serverResponse != null) {
+                    displayServerResponse(serverResponse);
+                } else {
+                    displayServerResponse("No Response :(");
+                }
 
-                    // Close connection and streams
-                    in.close();
-                    out.close();
-                    socket.close();
+                // Close connection and streams
+                in.close();
+                out.close();
+                socket.close();
 
-                } catch (SocketTimeoutException e) {
-                    // Handle timeout exception
-                    displayServerResponse("Timeout occurred while waiting for response :(");
-                } catch (IOException e) {
-                    // Display error message
-                    displayServerResponse("Something went wrong :(");
-                    e.printStackTrace();
-                } finally {
-                    // Close the socket
-                    if (socket != null) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+            } catch (SocketTimeoutException e) {
+                // Handle timeout exception
+                displayServerResponse("Timeout occurred while waiting for response :(");
+            } catch (IOException e) {
+                // Display error message
+                displayServerResponse("Something went wrong :(");
+                e.printStackTrace();
+            } finally {
+                // Close the socket
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
