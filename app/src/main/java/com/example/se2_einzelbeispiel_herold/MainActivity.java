@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessageToServer(String message) {
         new Thread(() -> {
             Socket socket = null;
-            BufferedWriter out = null;
+            OutputStream out = null;
             BufferedReader in = null;
             try {
                 // Establish connection to server
@@ -80,16 +81,24 @@ public class MainActivity extends AppCompatActivity {
                 displayServerResponse("Successfully connected :)");
 
                 // Reader/writer
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out = socket.getOutputStream();
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 Log.i("HELP", "SET UP READER/WRITER");
 
-                // Send message
+                // check message length before sending
                 if(message == null || message.isEmpty()) {
                     displayServerResponse("Bitte MatrNr eingeben ;)");
                     return;
                 }
-                out.write(message);
+
+                // convert matrnr to byte array
+                int i = Integer.parseInt(message);
+                ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+                buffer.putInt(i);
+                byte[] bytes = buffer.array();
+
+                // send message
+                out.write(bytes);
                 out.flush();
                 Log.i("HELP", "MESSAGE SENT");
 
