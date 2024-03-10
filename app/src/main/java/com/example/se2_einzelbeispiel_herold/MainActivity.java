@@ -15,7 +15,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -30,8 +29,10 @@ public class MainActivity extends AppCompatActivity {
     // ui elements
     private EditText matrNrEditText;
     private TextView serverResponseTextView;
+    private TextView resultTextView;
     private Button sendButton;
 
+    private Button calculateButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
         // bind ui elements
         matrNrEditText = findViewById(R.id.matrNrEditText);
         serverResponseTextView = findViewById(R.id.serverResponseTextView);
+        resultTextView = findViewById(R.id.resultTextView);
         sendButton = findViewById(R.id.sendButton);
+        calculateButton = findViewById(R.id.calculateButton);
 
         // set sendButton behaviour
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -55,6 +58,16 @@ public class MainActivity extends AppCompatActivity {
                 String matrNr = matrNrEditText.getText().toString();
 
                 sendMessageToServer(matrNr);
+            }
+        });
+
+        // set calculateButton behaviour
+        calculateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String matrNr = matrNrEditText.getText().toString();
+
+                calculateResult(matrNr);
             }
         });
     }
@@ -118,5 +131,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayServerResponse(String message) {
         runOnUiThread(() -> serverResponseTextView.setText(message));
+    }
+
+    private void calculateResult(String input) {
+        displayResult(input);
+    }
+
+    private void displayResult(String message) {
+        runOnUiThread(() -> resultTextView.setText(message));
     }
 }
