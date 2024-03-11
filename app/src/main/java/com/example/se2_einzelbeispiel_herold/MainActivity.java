@@ -2,7 +2,6 @@ package com.example.se2_einzelbeispiel_herold;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,15 +13,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView serverResponseTextView;
     private TextView resultTextView;
     private Button sendButton;
-
     private Button calculateButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // set calculateButton behaviour
+        // solve task 4 (12140272 % 7 = 4)
         calculateButton.setOnClickListener(v -> {
             String matrNr = matrNrEditText.getText().toString();
             calculateResult(matrNr);
@@ -76,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
             PrintWriter out = null;
             BufferedReader in = null;
             try {
-                // Establish connection to server
+                // establish connection to server
                 socket = new Socket(SERVER_IP, SERVER_PORT);
                 Log.i("HELP", "CONNECTED");
                 displayServerResponse("Successfully connected :)");
 
-                // Reader/writer
+                // reader/writer
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 Log.i("HELP", "SET UP READER/WRITER");
@@ -96,12 +92,12 @@ public class MainActivity extends AppCompatActivity {
                 out.println(message);
                 Log.i("HELP", "MESSAGE SENT");
 
-                // Wait for response
+                // wait for response
                 socket.setSoTimeout(10000);
-                // Read response
+                // read response
                 String serverResponse = in.readLine();
 
-                // Display response
+                // display response
                 if (serverResponse != null) {
                     displayServerResponse(serverResponse);
                     Log.i("HELP", "MESSAGE RECEIVED");
@@ -117,10 +113,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("HELP", "NORMAL CLOSE");
 
             } catch (SocketTimeoutException e) {
-                // Handle timeout exception
-                displayServerResponse("Timeout occurred while waiting for response :(");
+                // handle timeout exception
+                displayServerResponse("Timeout :(");
             } catch (IOException e) {
-                // Display error message
+                // display error message
                 displayServerResponse("Something went wrong :(");
                 e.printStackTrace();
             } finally {
@@ -143,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 if (out != null) {
                     out.close();
                 }
+
                 Log.i("HELP", "FINALLY CLOSE");
             }
         }).start();
@@ -189,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (resultText.isEmpty()) {
-                displayResult("No pairs with gcd > 1 :(");
+                displayResult("Keine Paare mit gcd > 1 :(");
             } else {
                 displayResult(resultText);
             }

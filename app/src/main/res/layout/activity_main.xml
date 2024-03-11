@@ -76,8 +76,8 @@
     <TextView
         android:id="@+id/resultTextView"
         android:layout_width="256dp"
-        android:layout_height="80dp"
-        android:text="Result"
+        android:layout_height="140dp"
+        android:text="Result (Aufgabe 4)"
         android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/sendButton"
