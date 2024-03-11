@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessageToServer(String message) {
         new Thread(() -> {
             Socket socket = null;
-            OutputStream out = null;
+            PrintWriter out = null;
             BufferedReader in = null;
             try {
                 // Establish connection to server
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 displayServerResponse("Successfully connected :)");
 
                 // Reader/writer
-                out = socket.getOutputStream();
+                out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 Log.i("HELP", "SET UP READER/WRITER");
 
@@ -91,19 +92,12 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                // convert matrnr to byte array
-                int i = Integer.parseInt(message);
-                ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-                buffer.putInt(i);
-                byte[] bytes = buffer.array();
-
                 // send message
-                out.write(bytes);
-                out.flush();
+                out.println(message);
                 Log.i("HELP", "MESSAGE SENT");
 
                 // Wait for response
-                socket.setSoTimeout(30000);
+                socket.setSoTimeout(10000);
                 // Read response
                 String serverResponse = in.readLine();
 
@@ -147,11 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    out.close();
                 }
                 Log.i("HELP", "FINALLY CLOSE");
             }
